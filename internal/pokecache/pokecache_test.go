@@ -2,17 +2,18 @@ package pokecache
 
 import (
 	"testing"
+	"time"
 )
 
 func TestCreateCache(t *testing.T) {
-	cache := NewCache()
+	cache := NewCache(time.Millisecond)
 	if cache.cache == nil {
 		t.Error("cache is nil")
 	}
 }
 
 func TestAddGetCache(t *testing.T) {
-	cache := NewCache()
+	cache := NewCache(time.Millisecond)
 
 	cases := []struct {
 		inputKey string
@@ -47,4 +48,35 @@ func TestAddGetCache(t *testing.T) {
 
 	}
 
+}
+
+func TestReap(t *testing.T) {
+	interval := time.Millisecond * 10
+	cache := NewCache(interval)
+	key := "qwe"
+	val := "zxc"
+
+	cache.Add(key, []byte(val))
+	time.Sleep(interval + time.Millisecond)
+
+	_, ok := cache.Get(key)
+	if ok {
+		t.Errorf("%s should be reaped", key)
+	}
+}
+func TestReapFail(t *testing.T) {
+	interval := time.Millisecond * 10
+	cache := NewCache(interval)
+	key := "qwe"
+	val := "zxc"
+
+	cache.Add(key, []byte(val))
+
+	// Wait for a short duration less than the reaping interval
+	time.Sleep(interval / 2)
+
+	_, ok := cache.Get(key)
+	if !ok {
+		t.Errorf("%s should NOT be reaped before the given interval", key)
+	}
 }
