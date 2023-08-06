@@ -1,6 +1,17 @@
 package main
 
+import "github.com/AmelAbema/Pokedex/internal/pokeapi"
+
+type config struct {
+	pokeapiClient       pokeapi.Client
+	nextLocationAreaURL *string
+	prevLocationAreaURL *string
+}
+
 func main() {
-	startRepl()
+	cfg := config{
+		pokeapiClient: pokeapi.NewClient(),
+	}
+	startRepl(&cfg)
 
 }
